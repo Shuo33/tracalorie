@@ -58,7 +58,13 @@ class CalorieTracker {
         }
     }
 
-
+    // To reset 
+    reset() {
+        this._totalCalories = 0; 
+        this._meals = [];
+        this._workouts = [];
+        this._render();
+    }
 
 
     // Private Methods
@@ -222,6 +228,13 @@ class App {
         document.getElementById('meal-items').addEventListener('click', this._removeItem.bind(this, 'meal'));
 
         document.getElementById('workout-items').addEventListener('click', this._removeItem.bind(this, 'workout'))
+
+        document.getElementById('filter-meals').addEventListener('keyup', this._filterItems.bind(this, 'meal'));
+
+        document.getElementById('filter-workouts').addEventListener('keyup', this._filterItems.bind(this, 'workout'));
+
+        document.getElementById('reset').addEventListener('click', this._reset.bind(this))
+
     }
 
      _newItem(type, e) {
@@ -297,12 +310,40 @@ class App {
             item.remove();
           }
         }
-      }
+    }
+    
+    _filterItems(type, e) {
+        // get the text from the input
+        const text = e.target.value.toLowerCase();
+        // targeting all the items (meal & workout) with .card, which contain the id of the items
+        let items = document.querySelectorAll(`#${type}-items .card`); 
+        // loop through all the items, both meal items and workout items
+        items.forEach(function(item)
+            // get the name inside the .card div, which is the name of the item
+            {const name = item.firstElementChild.firstElementChild.textContent;
+            //check every item's name to see if it has the text, if yes then match, if not then -1 
+            if (name.toLowerCase().indexOf(text) !== -1) {
+                // if the name of the item matche the searched item(text), then show the item 
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none'; 
+            }
+        });
+    }
 
+    _reset() {
+        this._tracker.reset();
+        // reset the DOM of the APP part to zero, clean them up
+        document.getElementById('meal-items').innerHTML = ''; 
+        document.getElementById('workout-items').innerHTML = ''; 
+        // for the input we use value to clean them up 
+        document.getElementById('filter-meals').value = ''; 
+        document.getElementById('filter-workouts').value = ''; 
+    }
 
     
 }
 
 
 const app = new App();
-console.log(app);
+// console.log(app);
