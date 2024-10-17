@@ -32,6 +32,35 @@ class CalorieTracker {
         this._render(); 
     }
 
+    // To identify the meal that got clicked and remove it from the 'this._meals' array
+    removeMeal(id) {
+        // find the index that we want to remove: when the clicked id = the meal'id, we take that index from the 'this._meals' array and put it into index variable
+        // const index = this._meals.findIndex(function (meal) { meal.id === id }) only arrow function work
+        const index = this._meals.findIndex((meal) => meal.id === id )
+        //if the clicked id has been found in the array
+        if (index !== -1) {
+            const meal = this._meals[index]; //get the meal with the meal's id from the array
+            this._totalCalories -= meal.calories;
+            this._meals.splice(index, 1); // take the meal out of the array completely, delete it from the array
+            this._render();
+        }
+    }
+
+    // To identify the workout that got clicked and remove it from the 'this._workouts' array
+    removeWorkout(id) {
+        // const index = this._workouts.findIndex(function (workout){workout.id === id}); didn't work, have to use arrow 
+        const index = this._workouts.findIndex((workout) => workout.id === id);
+        if (index !== -1) {
+            const workout = this._workouts[index]; 
+            this._workouts.splice(index, 1);
+            this._totalCalories += workout.calories;
+            this._render();
+        }
+    }
+
+
+
+
     // Private Methods
     _displayCaloriesTotal() {
         const totalCaloriesEl = document.getElementById('calories-total');
@@ -189,6 +218,10 @@ class App {
         document.getElementById('meal-form').addEventListener('submit', this._newItem.bind(this, 'meal'));
 
         document.getElementById('workout-form').addEventListener('submit', this._newItem.bind(this, 'workout'));
+
+        document.getElementById('meal-items').addEventListener('click', this._removeItem.bind(this, 'meal'));
+
+        document.getElementById('workout-items').addEventListener('click', this._removeItem.bind(this, 'workout'))
     }
 
      _newItem(type, e) {
@@ -223,34 +256,53 @@ class App {
          })
      }
     
-    // _newWorkOut(e) {
-    //     e.preventDefault();
+    _newWorkOut(e) {
+        e.preventDefault();
 
-    //     const name = document.getElementById('workout-name');
-    //     const calories = document.getElementById('workout-calories');
+        const name = document.getElementById('workout-name');
+        const calories = document.getElementById('workout-calories');
 
-    //     // Valide input
-    //     if (name.value === '' || calories.value === '') {
-    //         alert('Please fill in all the fields');
-    //         return;
-    //     }
+        // Valide input
+        if (name.value === '' || calories.value === '') {
+            alert('Please fill in all the fields');
+            return;
+        }
 
-    //     const workout = new Workout(name.value, +calories.value);
+        const workout = new Workout(name.value, +calories.value);
 
-    //     this._tracker.addWorkout(workout);
+        this._tracker.addWorkout(workout);
 
-    //     // clean up the lasted data
-    //     name.value = '';
-    //     calories.value = '';
+        // clean up the lasted data
+        name.value = '';
+        calories.value = '';
 
-    //     const collapseWorkOut = document.getElementById('collapse-workout');
-    //      const bsCollapse = new bootstrap.Collapse(collapseWorkOut, {
-    //          toggle: true
-    //      })
-    // }
+        const collapseWorkOut = document.getElementById('collapse-workout');
+         const bsCollapse = new bootstrap.Collapse(collapseWorkOut, {
+             toggle: true
+         })
+    }
+
+    _removeItem(type, e) {
+        if (
+          e.target.classList.contains('delete') ||
+          e.target.classList.contains('fa-xmark')
+        ) {
+            if (confirm('Are you sure?')) {
+              // take the target's nearest class which contains '.card', and gets it's id
+            const id = e.target.closest('.card').getAttribute('data-id');
+            type === 'meal' ? this._tracker.removeMeal(id) : this._tracker.removeWorkout(id);
+
+            // remove the item from the DOM
+            const item = e.target.closest('.card');
+            item.remove();
+          }
+        }
+      }
+
+
     
 }
 
 
 const app = new App();
-// console.log(app);
+console.log(app);
