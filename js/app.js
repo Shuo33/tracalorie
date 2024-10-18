@@ -1,7 +1,8 @@
 class CalorieTracker {
     // constructor runs when app loads 
     constructor() {
-        this._calorieLimit = 2000; 
+        // since 'getCalorieLimit()' is a static method inside the 'storage' class, we can call it only on it's class, we can't call it on an object/instance
+        this._calorieLimit = Storage.getCalorieLimit(); 
         this._totalCalories = 0; 
         this._meals = [];
         this._workouts = [];
@@ -68,6 +69,7 @@ class CalorieTracker {
 
     setLimit(calorieLimit) {
         this._calorieLimit = calorieLimit; 
+        Storage.setCalorieLimit(calorieLimit);
         this._displayCaloriesLimit();
         this._render();
     }
@@ -223,6 +225,30 @@ class Workout {
 // console.log(tracker._totalCalories);
 
 
+class Storage {
+    // static method can be called only on an object class, but not an object/instance.
+    
+    // to get the calorie limit
+    static getCalorieLimit(defaultLimit = 2000) {
+        let calorieLimit;
+        // if localStorage has nothing, it's going to be the defaul value 2000
+        if (localStorage.getItem('calorieLimit') === null) {
+            calorieLimit = defaultLimit;  
+        } else {
+            // if localStorage has a number, we put the number into the variable calorieLimit (transform string to number with +)
+            calorieLimit = +localStorage.getItem('calorieLimit');
+        }
+        return calorieLimit;
+    }
+
+    // to set the calorie limit
+    static setCalorieLimit(calorieLimit) {
+        localStorage.setItem('calorieLimit', calorieLimit);
+        }
+
+}
+
+// initializer 
 class App {
     constructor() {
         this._tracker = new CalorieTracker();
@@ -374,3 +400,4 @@ class App {
 
 const app = new App();
 // console.log(app);
+
