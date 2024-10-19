@@ -3,7 +3,7 @@ class CalorieTracker {
     constructor() {
         // since 'getCalorieLimit()' is a static method inside the 'storage' class, we can call it only on it's class, we can't call it on an object/instance
         this._calorieLimit = Storage.getCalorieLimit(); 
-        this._totalCalories = 0; 
+        this._totalCalories = Storage.getTotalCalories(0);
         this._meals = [];
         this._workouts = [];
 
@@ -20,6 +20,7 @@ class CalorieTracker {
     addMeal(meal) {
         this._meals.push(meal);
         this._totalCalories += meal.calories; 
+        Storage.updateTotalCalories(this._totalCalories);
         this._displayNewMeal(meal);
         // after every changes, we need to updated it to the DOM
         this._render();
@@ -28,6 +29,7 @@ class CalorieTracker {
     addWorkout(workout) {
         this._workouts.push(workout);
         this._totalCalories -= workout.calories;
+        Storage.updateTotalCalories(this._totalCalories);
         this._displayNewWorkout(workout);
         //after every changes, we need to updated it to the DOM so to show it
         this._render(); 
@@ -42,6 +44,7 @@ class CalorieTracker {
         if (index !== -1) {
             const meal = this._meals[index]; //get the meal with the meal's id from the array
             this._totalCalories -= meal.calories;
+            Storage.updateTotalCalories(this._totalCalories);
             this._meals.splice(index, 1); // take the meal out of the array completely, delete it from the array
             this._render();
         }
@@ -55,6 +58,7 @@ class CalorieTracker {
             const workout = this._workouts[index]; 
             this._workouts.splice(index, 1);
             this._totalCalories += workout.calories;
+            Storage.updateTotalCalories(this._totalCalories);
             this._render();
         }
     }
@@ -67,6 +71,7 @@ class CalorieTracker {
         this._render();
     }
 
+    // To set calorieLimit
     setLimit(calorieLimit) {
         this._calorieLimit = calorieLimit; 
         Storage.setCalorieLimit(calorieLimit);
@@ -243,8 +248,25 @@ class Storage {
 
     // to set the calorie limit
     static setCalorieLimit(calorieLimit) {
+        // localStorage.setItem(key, value);
         localStorage.setItem('calorieLimit', calorieLimit);
+    }
+    
+    // to get the total calories
+    static getTotalCalories(defaultCalories = 0) {
+        let totalCalories; 
+        if (localStorage.getItem('totalCalories' === null)) {
+            totalCalories = defaultCalories;
+        } else {
+            totalCalories = +localStorage.getItem('totalCalories');
         }
+        return totalCalories; 
+    }
+
+    // to set the total calories
+    static updateTotalCalories(calories) {
+        localStorage.setItem('totalCalories', calories);
+    }
 
 }
 
