@@ -48,6 +48,7 @@ class CalorieTracker {
             this._totalCalories -= meal.calories;
             Storage.updateTotalCalories(this._totalCalories);
             this._meals.splice(index, 1); // take the meal out of the array completely, delete it from the array
+            Storage.removeMeal(id);
             this._render();
         }
     }
@@ -61,6 +62,7 @@ class CalorieTracker {
             this._workouts.splice(index, 1);
             this._totalCalories += workout.calories;
             Storage.updateTotalCalories(this._totalCalories);
+            Storage.removeWorkout(id);
             this._render();
         }
     }
@@ -81,7 +83,7 @@ class CalorieTracker {
         this._render();
     }
 
-    // to load meals and workouts from the storage to the DOM 
+    // to load _meals array and _workouts array from the storage to the DOM 
     // note that we can only use arrow function cos normal function didnt work
     loadItems() {
         this._meals.forEach(
@@ -303,6 +305,21 @@ class Storage {
         localStorage.setItem('meals', JSON.stringify(meals));
     }
 
+    // to remove the meal from localStorage
+    static removeMeal(id) {
+        // get the meal from local storage
+        const meals = Storage.getMeals();
+        // find the clicked meal's id, and it's index, and take the meal with the index out 
+        meals.forEach((meal, index) => {
+            if (meal.id === id) {
+                meals.splice(index, 1);
+            }
+        });
+
+        // get ride of the clicked one and put the rest into the localStorage again
+        localStorage.setItem('meals', JSON.stringify(meals)) 
+    }
+
     // to get the workout from the localStorage
     static getWorkouts() {
         let workouts;
@@ -313,8 +330,6 @@ class Storage {
         }
         return workouts;
     }
-    
-   
 
     // to save the workout to localStorage
     static saveWorkout(workout) {
@@ -323,8 +338,22 @@ class Storage {
         localStorage.setItem('workouts', JSON.stringify(workouts)); 
     }
 
+    // to remove workout from the localStorage
+    static removeWorkout(id) {
+        const workouts = Storage.getWorkouts();
+        workouts.forEach((workout, index) => {
+            if (workout.id === id) {
+                workouts.splice(index, 1); 
+            }
+        });
+
+        localStorage.setItem('workouts', JSON.stringify(workouts))
+    }
+
 
 }
+
+
 
 // initializer 
 class App {
