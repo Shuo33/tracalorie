@@ -4,7 +4,7 @@ class CalorieTracker {
         // since 'getCalorieLimit()' is a static method inside the 'storage' class, we can call it only on it's class, we can't call it on an object/instance
         this._calorieLimit = Storage.getCalorieLimit(); 
         this._totalCalories = Storage.getTotalCalories(0);
-        this._meals = [];
+        this._meals = Storage.getMeals();
         this._workouts = [];
 
         // the constructor runs immediately when you instantiate the class
@@ -21,6 +21,7 @@ class CalorieTracker {
         this._meals.push(meal);
         this._totalCalories += meal.calories; 
         Storage.updateTotalCalories(this._totalCalories);
+        Storage.saveMeal(meal);
         this._displayNewMeal(meal);
         // after every changes, we need to updated it to the DOM
         this._render();
@@ -79,6 +80,13 @@ class CalorieTracker {
         this._render();
     }
 
+    // to load meals and workouts from the storage to the DOM 
+    // note that we can only use arrow function cos normal function didnt work
+    loadItems() {
+        this._meals.forEach(
+            meal => this._displayNewMeal(meal)
+        );
+    }
 
     // Private Methods
     _displayCaloriesTotal() {
@@ -268,13 +276,37 @@ class Storage {
         localStorage.setItem('totalCalories', calories);
     }
 
+    // to get the meal from the localStorage
+    static getMeals() {
+        let meals; 
+        if (localStorage.getItem('meals') === null) {
+            meals = []; 
+        } else {
+            // parse it into an  normal array from an stringfy array
+            meals = JSON.parse(localStorage.getItem('meals'));
+        }
+        return meals;
+    }
+
+    // to save the meal to localStorage
+    static saveMeal(meal) {
+        const meals = Storage.getMeals();
+        meals.push(meal);
+        localStorage.setItem('meals', JSON.stringify(meals));
+    }
+
+
 }
 
 // initializer 
 class App {
     constructor() {
         this._tracker = new CalorieTracker();
+        this._tracker.loadItems();
+        this._loadEventListeners();
+    }
 
+    _loadEventListeners() {
         document.getElementById('meal-form').addEventListener('submit', this._newItem.bind(this, 'meal'));
 
         document.getElementById('workout-form').addEventListener('submit', this._newItem.bind(this, 'workout'));
@@ -290,7 +322,6 @@ class App {
         document.getElementById('reset').addEventListener('click', this._reset.bind(this));
 
         document.getElementById('limit-form').addEventListener('submit', this._setLimit.bind(this));
-
     }
 
      _newItem(type, e) {
