@@ -5,7 +5,7 @@ class CalorieTracker {
         this._calorieLimit = Storage.getCalorieLimit(); 
         this._totalCalories = Storage.getTotalCalories(0);
         this._meals = Storage.getMeals();
-        this._workouts = [];
+        this._workouts = Storage.getWorkouts();
 
         // the constructor runs immediately when you instantiate the class
         this._displayCaloriesLimit();
@@ -31,6 +31,7 @@ class CalorieTracker {
         this._workouts.push(workout);
         this._totalCalories -= workout.calories;
         Storage.updateTotalCalories(this._totalCalories);
+        Storage.saveWorkout(workout);
         this._displayNewWorkout(workout);
         //after every changes, we need to updated it to the DOM so to show it
         this._render(); 
@@ -85,6 +86,10 @@ class CalorieTracker {
     loadItems() {
         this._meals.forEach(
             meal => this._displayNewMeal(meal)
+        );
+
+        this._workouts.forEach(
+            workout => this._displayNewWorkout(workout)
         );
     }
 
@@ -290,9 +295,32 @@ class Storage {
 
     // to save the meal to localStorage
     static saveMeal(meal) {
+        // take the meals (the older ones) from the storage to meals array
         const meals = Storage.getMeals();
+        // add the new meal(the new one) to meals array
         meals.push(meal);
+        // put the meals array into storage 
         localStorage.setItem('meals', JSON.stringify(meals));
+    }
+
+    // to get the workout from the localStorage
+    static getWorkouts() {
+        let workouts;
+        if (localStorage.getItem('workouts') === null) {
+            workouts = [];
+        } else {
+            workouts = JSON.parse(localStorage.getItem('workouts'));
+        }
+        return workouts;
+    }
+    
+   
+
+    // to save the workout to localStorage
+    static saveWorkout(workout) {
+        const workouts = Storage.getWorkouts();
+        workouts.push(workout);
+        localStorage.setItem('workouts', JSON.stringify(workouts)); 
     }
 
 
