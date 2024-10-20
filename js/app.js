@@ -14,6 +14,9 @@ class CalorieTracker {
         this._displayCaloriesBurned();
         this._displayCaloriesRemaining();
         this._displayCaloriesProgress();
+
+        // keep the 'set daily limit' value the same as the actual limit value 
+        document.getElementById('limit').value = this._calorieLimit; 
     }
 
     // Public Methods / API
@@ -72,6 +75,7 @@ class CalorieTracker {
         this._totalCalories = 0; 
         this._meals = [];
         this._workouts = [];
+        Storage.clearAll();
         this._render();
     }
 
@@ -350,7 +354,16 @@ class Storage {
         localStorage.setItem('workouts', JSON.stringify(workouts))
     }
 
+    // clear all the data of the local storage 
+    static clearAll() {
+        // clear everything except the calorie limit 
+        localStorage.removeItem('totalCalories');
+        localStorage.removeItem('meals');
+        localStorage.removeItem('workout');
 
+        // clear everything including the calories limit 
+        // localStorage.clear();
+    }
 }
 
 
